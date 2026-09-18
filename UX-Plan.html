@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanFlow — UX Plan</title>
+<style>
+:root {
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --surface-2: #18181b;
+  --border: #27272a;
+  --border-subtle: #1e1e22;
+  --text: #fafafa;
+  --text-muted: #a1a1aa;
+  --text-dim: #71717a;
+  --accent: #3b82f6;
+  --accent-subtle: #1e3a5f;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --radius: 8px;
+  --radius-sm: 4px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:48px 24px;-webkit-font-smoothing:antialiased}
+.container{max-width:1400px;margin:0 auto}
+.header{margin-bottom:48px}
+.header h1{font-size:32px;font-weight:600;letter-spacing:-0.03em;margin-bottom:8px}
+.header p{font-size:15px;color:var(--text-muted);max-width:600px;line-height:1.6}
+.tabs{display:flex;gap:24px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border-subtle)}
+.tab{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;font-weight:500;cursor:pointer;padding:8px 0;border-bottom:2px solid transparent;transition:all 0.2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card:hover{border-color:#3f3f46}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:600;letter-spacing:-0.01em}
+.card-count{font-size:11px;color:var(--text-dim);background:var(--surface-2);padding:2px 8px;border-radius:10px}
+
+/* Issues grid */
+.issues-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:16px;margin-bottom:48px}
+.issue-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);p}
+.issue-card:hover{border-color:#3f3f46}
+.issue-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.issue-title{font-size:14px;font-weight:600}
+.issue-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.03em}
+.badge-high{background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.3)}
+.badge-medium{background:rgba(245,158,11,0.1);color:var(--warning);border:1px solid rgba(245,158,11,0.3)}
+.badge-low{background:rgba(34,197,94,0.1);color:var(--success);border:1px solid rgba(34,197,94,0.3)}
+.issue-body{margin-bottom:12px}
+.issue-body p{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:8px}
+.issue-body strong{color:var(--text);font-weight:500}
+.issue-solution{background:var(--surface-2);border-radius:var(--radius-sm);padding:12px;font-size:12px;color:var(--text-muted);line-height:1.6}
+.issue-solution strong{color:var(--accent);font-weight:500}
+
+/* Design system */
+.ds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:48px}
+.ds-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.ds-preview{height:120px;display:flex;align-items:center;justify-content:center}
+.ds-info{padding:16px}
+.ds-info h4{font-size:13px;font-weight:600;margin-bottom:4px}
+.ds-info p{font-size:11px;color:var(--text-dim);line-height:1.5}
+
+/* Color swatches */
+.color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:48px}
+.color-swatch{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.color-preview{height:60px}
+.color-info{padding:10px 12px;background:var(--surface)}
+.color-name{font-size:11px;font-weight:600;margin-bottom:2px}
+.color-value{font-size:10px;color:var(--text-dim);font-family:monospace}
+
+/* Page plan */
+.page-plan{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px;margin-bottom:48px}
+.page-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.page-card:hover{border-color:#3f3f46}
+.page-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.page-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.page-title{font-size:14px;font-weight:600}
+.page-section{font-size:11px;color:var(--text-dim);margin-bottom:8px}
+.page-list{list-style:none}
+.page-list li{font-size:12px;color:var(--text-muted);padding:4px 0;display:flex;align-items:center;gap:8px}
+.page-list li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--accent)}
+
+/* Progress */
+.progress-section{margin-bottom:48px}
+.progress-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.progress-title{font-size:14px;font-weight:600}
+.progress-stats{display:flex;gap:24px}
+.progress-stat{text-align:center}
+.progress-value{font-size:24px;font-weight:600;letter-spacing:-0.02em}
+.progress-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em}
+.progress-bar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width 0.3s}
+.progress-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim)}
+
+/* Comparison */
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px}
+.comparison-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.comparison-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.comparison-header h4{font-size:13px;font-weight:600}
+.comparison-body{padding:16px}
+.comparison-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);font-size:12px}
+.comparison-item:last-child{border-bottom:none}
+.comparison-item .label{flex:1;color:var(--text-muted)}
+.comparison-item .status{font-size:10px;padding:2px 6px;border-radius:4px}
+.status-done{background:rgba(34,197,94,0.1);color:var(--success)}
+.status-progress{background:rgba(59,130,246,0.1);color:var(--accent)}
+.status-pending{background:var(--surface-2);color:var(--text-dim)}
+
+/* Typography */
+.type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:48px}
+.type-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.type-sample{margin-bottom:12px}
+.type-meta{font-size:11px;color:var(--text-dim)}
+.type-meta span{display:block;margin-bottom:2px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;border:none}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#2563eb}
+.btn-secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:#3f3f46}
+.btn-ghost{background:transparent;color:var(--text-muted)}
+.btn-ghost:hover{color:var(--text)}
+
+/* Responsive */
+@media(max-width:900px){
+  .issues-grid{grid-template-columns:1fr}
+  .comparison{grid-template-columns:1fr}
+  .page-plan{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="header">
+    <h1>CleanFlow UX Plan</h1>
+    <p>Comprehensive UI/UX strategy for the cleaning company SaaS — auditing current state, defining the design system, and planning page-by-page improvements.</p>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab(this,'issues')">Issues & Opportunities</div>
+    <div class="tab" onclick="showTab(this,'design-system')">Design System</div>
+    <div class="tab" onclick="showTab(this,'page-plan')">Page Plan</div>
+    <div class="tab" onclick="showTab(this,'progress')">Progress</div>
+  </div>
+
+  <!-- Issues Tab -->
+  <div id="issues" class="tab-content active">
+    <div class="issues-grid">
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">Empty States Are Missing</span>
+          <span class="issue-badge badge-high">High</span>
+        </div>
+        <div class="issue-body">
+          <p>Tables and lists show <strong>"No items found"</strong> with no guidance. Users need clear next steps when data is empty.</p>
+          <p>Affects: <strong>CRM, Scheduling, Inventory, Invoicing, Checklists, Dispatch</strong></p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add illustrated empty states with a headline, description, and primary CTA button (e.g., "Add your first customer").
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">No Global Search</span>
+          <span class="issue-badge badge-high">High</span>
+        </div>
+        <div class="issue-body">
+          <p>Users must navigate through the sidebar to find anything. No <strong>command bar or global search</strong> exists.</p>
+          <p>Affects: <strong>All pages with data lookup</strong></p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add a Cmd+K command palette that searches customers, jobs, invoices, and cleaners across the app.
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">Sidebar Is Static</span>
+          <span class="issue-badge badge-medium">Medium</span>
+        </div>
+        <div class="issue-body">
+          <p>The sidebar has <strong>19 items in 5 sections</strong> with no way to collapse, pin favorites, or reorder. It will become unwieldy as features grow.</p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add collapsible sections, a "Favorites" area, and a collapsed icon-only mode. Consider a horizontal top nav for primary sections.
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">No Loading States</span>
+          <span class="issue-badge badge-medium">Medium</span>
+        </div>
+        <div class="issue-body">
+          <p>When Supabase is connected, data fetches will have latency. Currently <strong>no skeleton loaders or spinners</strong> exist.</p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add skeleton placeholders for tables, cards, and charts. Use shimmer animation for perceived performance.
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">No Feedback on Actions</span>
+          <span class="issue-badge badge-medium">Medium</span>
+        </div>
+        <div class="issue-body">
+          <p>Actions like "Mark Paid", "Clock Out", "Restock" give <strong>no success/error feedback</strong>. Users can't confirm the action worked.</p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add toast notifications (top-right) for all mutations. Include undo for destructive actions.
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">No Bulk Actions</span>
+          <span class="issue-badge badge-low">Low</span>
+        </div>
+        <div class="issue-body">
+          <p>Users can't select multiple items for batch operations (e.g., <strong>delete multiple customers, assign multiple jobs</strong>).</p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add row checkboxes and a bulk action bar that appears on selection.
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">No Keyboard Shortcuts</span>
+          <span class="issue-badge badge-low">Low</span>
+        </div>
+        <div class="issue-body">
+          <p>Power users have no way to navigate or act via keyboard. No <strong>hotkeys for common actions</strong>.</p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add shortcuts: <code>Cmd+N</code> new item, <code>Cmd+/</code> search, <code>Esc</code> close modal, <code>J/K</code> navigate lists.
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">No Onboarding Flow</span>
+          <span class="issue-badge badge-medium">Medium</span>
+        </div>
+        <div class="issue-body">
+          <p>New users see an empty dashboard with <strong>no guidance</strong> on how to set up their first customer, cleaner, or job.</p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add a setup wizard that walks through: create company → add cleaners → add first customer → schedule first job.
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">Inconsistent Detail Panels</span>
+          <span class="issue-badge badge-low">Low</span>
+        </div>
+        <div class="issue-body">
+          <p>Some pages use <strong>right-side drawers</strong> (CRM, Scheduling), others use <strong>modals</strong> (Inventory, Reminders). Pattern should be consistent.</p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Standardize: use a slide-over panel for detail views, modals for create/edit forms. Never nest modals.
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">No Mobile Responsiveness</span>
+          <span class="issue-badge badge-high">High</span>
+        </div>
+        <div class="issue-body">
+          <p>The sidebar is <strong>fixed at 240px</strong> and pages use rigid grid layouts. The app will break on tablets and small screens.</p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add responsive breakpoints: sidebar becomes bottom nav on mobile, tables become cards, grids collapse to single column.
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-header">
+          <span class="issue-title">No Dark/Light Mode Toggle</span>
+          <span class="issue-badge badge-low">Low</span>
+        </div>
+        <div class="issue-body">
+          <p>The app is <strong>hardcoded dark</strong>. Some users (especially on mobile) prefer light mode. No toggle exists.</p>
+        </div>
+        <div class="issue-solution">
+          <strong>Fix:</strong> Add a theme toggle in the header. Respect <code>prefers-color-scheme</code> by default, allow override.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Design System Tab -->
+  <div id="design-system" class="tab-content">
+    <h2 style="font-size:18px;font-weight:600;margin-bottom:24px">Color System</h2>
+    <div class="color-grid">
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#0a0a0b"></div>
+        <div class="color-info"><div class="color-name">Background</div><div class="color-value">#0a0a0b</div></div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#111113"></div>
+        <div class="color-info"><div class="color-name">Surface</div><div class="color-value">#111113</div></div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#18181b"></div>
+        <div class="color-info"><div class="color-name">Surface 2</div><div class="color-value">#18181b</div></div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#27272a"></div>
+        <div class="color-info"><div class="color-name">Border</div><div class="color-value">#27272a</div></div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#3b82f6"></div>
+        <div class="color-info"><div class="color-name">Accent</div><div class="color-value">#3b82f6</div></div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#22c55e"></div>
+        <div class="color-info"><div class="color-name">Success</div><div class="color-value">#22c55e</div></div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#f59e0b"></div>
+        <div class="color-info"><div class="color-name">Warning</div><div class="color-value">#f59e0b</div></div>
+      </div>
+      <div class="color-swatch">
+        <div class="color-preview" style="background:#ef4444"></div>
+        <div class="color-info"><div class="color-name">Danger</div><div class="color-value">#ef4444</div></div>
+      </div>
+    </div>
+
+    <h2 style="font-size:18px;font-weight:600;margin-bottom:24px">Typography</h2>
+    <div class="type-grid">
+      <div class="type-card">
+        <div class="type-sample" style="font-size:28px;font-weight:600;letter-spacing:-0.03em">Heading 1</div>
+        <div class="type-meta"><span>28px · Semibold · -0.03em</span><span>Page titles</span></div>
+      </div>
+      <div class="type-card">
+        <div class="type-sample" style="font-size:20px;font-weight:600;letter-spacing:-0.02em">Heading 2</div>
+        <div class="type-meta"><span>20px · Semibold · -0.02em</span><span>Section titles</span></div>
+      </div>
+      <div class="type-card">
+        <div class="type-sample" style="font-size:14px;font-weight:600;letter-spacing:-0.01em">Heading 3</div>
+        <div class="type-meta"><span>14px · Semibold · -0.01em</span><span>Card titles</span></div>
+      </div>
+      <div class="type-card">
+        <div class="type-sample" style="font-size:13px;font-weight:500">Body Text</div>
+        <div class="type-meta"><span>13px · Medium</span><span>Primary content</span></div>
+      </div>
+      <div class="type-card">
+        <div class="type-sample" style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em">Label Text</div>
+        <div class="type-meta"><span>11px · Medium · Uppercase</span><span>Labels, badges</span></div>
+      </div>
+      <div class="type-card">
+        <div class="type-sample" style="font-size:12px;font-family:monospace">Monospace</div>
+        <div class="type-meta"><span>12px · Mono</span><span>Codes, IDs, keys</span></div>
+      </div>
+    </div>
+
+    <h2 style="font-size:18px;font-weight:600;margin-bottom:24px">Component Library</h2>
+    <div class="ds-grid">
+      <div class="ds-card">
+        <div class="ds-preview" style="background:var(--surface-2)">
+          <button class="btn btn-primary">Primary Action</button>
+        </div>
+        <div class="ds-info"><h4>Primary Button</h4><p>Blue-500 background, white text. For main CTAs.</p></div>
+      </div>
+      <div class="ds-card">
+        <div class="ds-preview" style="background:var(--surface-2)">
+          <button class="btn btn-secondary">Secondary</button>
+        </div>
+        <div class="ds-info"><h4>Secondary Button</h4><p>Surface-2 background, border. For secondary actions.</p></div>
+      </div>
+      <div class="ds-card">
+        <div class="ds-preview" style="background:var(--surface-2)">
+          <div style="width:100%;max-width:200px"><input type="text" placeholder="Search..." style="width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text)"></div>
+        </div>
+        <div class="ds-info"><h4>Input Field</h4><p>Dark bg, border, 6px radius. Focus: accent border.</p></div>
+      </div>
+      <div class="ds-card">
+        <div class="ds-preview" style="background:var(--surface-2)">
+          <span style="padding:4px 10px;background:rgba(34,197,94,0.1);color:var(--success);border:1px solid rgba(34,197,94,0.3);border-radius:10px;font-size:10px;font-weight:500;text-transform:uppercase">Active</span>
+        </div>
+        <div class="ds-info"><h4>Status Badge</h4><p>Colored background, matching border, uppercase text.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Plan Tab -->
+  <div id="page-plan" class="tab-content">
+    <div class="page-plan">
+      <div class="page-card">
+        <div class="page-header">
+          <div class="page-icon" style="background:rgba(59,130,246,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+          <span class="page-title">Dashboard</span>
+        </div>
+        <div class="page-section">Changes</div>
+        <ul class="page-list">
+          <li>Replace static stats with live Supabase queries</li>
+          <li>Add sparkline charts for revenue/jobs trends</li>
+          <li>Show "Today's Schedule" with next 3 jobs</li>
+          <li>Add quick-action bar (New Job, Add Customer)</li>
+          <li>Show alerts banner (overdue invoices, missed clock-outs)</li>
+        </ul>
+      </div>
+
+      <div class="page-card">
+        <div class="page-header">
+          <div class="page-icon" style="background:rgba(34,197,94,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <span class="page-title">Customer CRM</span>
+        </div>
+        <div class="page-section">Changes</div>
+        <ul class="page-list">
+          <li>Add empty state with illustration + CTA</li>
+          <li>Add skeleton loaders for list</li>
+          <li>Add bulk select + delete</li>
+          <li>Add customer detail slide-over panel</li>
+          <li>Add "Quick Add" floating action button</li>
+          <li>Show map preview of customer addresses</li>
+        </ul>
+      </div>
+
+      <div class="page-card">
+        <div class="page-header">
+          <div class="page-icon" style="background:rgba(245,158,11,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <span class="page-title">Scheduling</span>
+        </div>
+        <div class="page-section">Changes</div>
+        <ul class="page-list">
+          <li>Add drag-and-drop for job rescheduling</li>
+          <li>Add conflict detection (double-booked cleaner)</li>
+          <li>Add recurring job indicator</li>
+          <li>Add color-coded cleaner lanes</li>
+          <li>Add "Today" quick-jump button</li>
+          <li>Add job detail slide-over (not sidebar)</li>
+        </ul>
+      </div>
+
+      <div class="page-card">
+        <div class="page-header">
+          <div class="page-icon" style="background:rgba(239,68,68,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <span class="page-title">Empty States</span>
+        </div>
+        <div class="page-section">Pattern (all pages)</div>
+        <ul class="page-list">
+          <li>Centered illustration or icon</li>
+          <li>Headline: "No [items] yet"</li>
+          <li>Subtext: brief explanation</li>
+          <li>Primary CTA: "Add your first [item]"</li>
+          <li>Optional: link to docs or video</li>
+        </ul>
+      </div>
+
+      <div class="page-card">
+        <div class="page-header">
+          <div class="page-icon" style="background:rgba(59,130,246,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          <span class="page-title">Global Search</span>
+        </div>
+        <div class="page-section">New Component</div>
+        <ul class="page-list">
+          <li>Cmd+K to open command palette</li>
+          <li>Search across customers, jobs, invoices</li>
+          <li>Keyboard navigation (arrows + enter)</li>
+          <li>Recent searches history</li>
+          <li>Quick actions (New Job, Add Customer)</li>
+        </ul>
+      </div>
+
+      <div class="page-card">
+        <div class="page-header">
+          <div class="page-icon" style="background:rgba(34,197,94,0.1)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+          <span class="page-title">Toast Notifications</span>
+        </div>
+        <div class="page-section">New Component</div>
+        <ul class="page-list">
+          <li>Top-right position, stackable</li>
+          <li>Success (green), Error (red), Info (blue)</li>
+          <li>Auto-dismiss after 4 seconds</li>
+          <li>Manual dismiss with X button</li>
+          <li>Undo action for destructive ops</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Tab -->
+  <div id="progress" class="tab-content">
+    <div class="progress-section">
+      <div class="progress-header">
+        <span class="progress-title">Roadmap Completion</span>
+        <div class="progress-stats">
+          <div class="progress-stat"><div class="progress-value">19/19</div><div class="progress-label">Features</div></div>
+          <div class="progress-stat"><div class="progress-value">12</div><div class="progress-label">UX Issues</div></div>
+          <div class="progress-stat"><div class="progress-value">7</div><div class="progress-label">Pending</div></div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+      <div class="progress-labels"><span>Features: Complete</span><span>UX Improvements: Next</span></div>
+    </div>
+
+    <h2 style="font-size:18px;font-weight:600;margin-bottom:24px">Current vs Proposed</h2>
+    <div class="comparison">
+      <div class="comparison-panel">
+        <div class="comparison-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <h4 style="color:#ef4444">Current Issues</h4>
+        </div>
+        <div class="comparison-body">
+          <div class="comparison-item"><span class="label">Empty states</span><span class="status status-pending">Missing</span></div>
+          <div class="comparison-item"><span class="label">Global search</span><span class="status status-pending">Missing</span></div>
+          <div class="comparison-item"><span class="label">Loading states</span><span class="status status-pending">Missing</span></div>
+          <div class="comparison-item"><span class="label">Toast feedback</span><span class="status status-pending">Missing</span></div>
+          <div class="comparison-item"><span class="label">Mobile responsive</span><span class="status status-pending">Missing</span></div>
+          <div class="comparison-item"><span class="label">Onboarding flow</span><span class="status status-pending">Missing</span></div>
+          <div class="comparison-item"><span class="label">Keyboard shortcuts</span><span class="status status-pending">Missing</span></div>
+          <div class="comparison-item"><span class="label">Bulk actions</span><span class="status status-pending">Missing</span></div>
+        </div>
+      </div>
+      <div class="comparison-panel">
+        <div class="comparison-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <h4 style="color:#22c55e">Proposed Additions</h4>
+        </div>
+        <div class="comparison-body">
+          <div class="comparison-item"><span class="label">Illustrated empty states</span><span class="status status-progress">Planned</span></div>
+          <div class="comparison-item"><span class="label">Cmd+K command palette</span><span class="status status-progress">Planned</span></div>
+          <div class="comparison-item"><span class="label">Skeleton loaders</span><span class="status status-progress">Planned</span></div>
+          <div class="comparison-item"><span class="label">Toast notifications</span><span class="status status-progress">Planned</span></div>
+          <div class="comparison-item"><span class="label">Responsive breakpoints</span><span class="status status-progress">Planned</span></div>
+          <div class="comparison-item"><span class="label">Setup wizard</span><span class="status status-progress">Planned</span></div>
+          <div class="comparison-item"><span class="label">Keyboard shortcuts</span><span class="status status-progress">Planned</span></div>
+          <div class="comparison-item"><span class="label">Bulk select + actions</span><span class="status status-progress">Planned</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="font-size:18px;font-weight:600;margin-bottom:24px;margin-top:48px">Recommended Priority</h2>
+    <div class="issues-grid">
+      <div class="issue-card">
+        <div class="issue-header"><span class="issue-title">Phase 1 — Critical</span><span class="issue-badge badge-high">Now</span></div>
+        <ul class="page-list" style="padding:16px">
+          <li>Empty states with CTAs</li>
+          <li>Toast notifications for all actions</li>
+          <li>Loading skeletons</li>
+          <li>Mobile responsive breakpoints</li>
+        </ul>
+      </div>
+      <div class="issue-card">
+        <div class="issue-header"><span class="issue-title">Phase 2 — Core UX</span><span class="issue-badge badge-medium">Next</span></div>
+        <ul class="page-list" style="padding:16px">
+          <li>Global search (Cmd+K)</li>
+          <li>Onboarding setup wizard</li>
+          <li>Consistent detail panels</li>
+          <li>Keyboard shortcuts</li>
+        </ul>
+      </div>
+      <div class="issue-card">
+        <div class="issue-header"><span class="issue-title">Phase 3 — Power User</span><span class="issue-badge badge-low">Later</span></div>
+        <ul class="page-list" style="padding:16px">
+          <li>Bulk actions</li>
+          <li>Dark/light theme toggle</li>
+          <li>Customizable sidebar</li>
+          <li>Advanced filters</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(el,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>

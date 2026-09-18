@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { CreditCard, DollarSign, FileText, Plus, Download, Send, Check, X, Clock, AlertTriangle, TrendingUp, Calendar, Users, Receipt, Settings } from 'lucide-react'
+import { useToast } from '@/components/Toast'
+import EmptyState from '@/components/EmptyState'
 
 interface Invoice {
   id: string
@@ -124,6 +126,7 @@ const statusConfig = {
 }
 
 export default function InvoicingPage() {
+  const { addToast } = useToast()
   const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices)
   const [filterStatus, setFilterStatus] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -138,10 +141,12 @@ export default function InvoicingPage() {
 
   const handleMarkPaid = (id: string) => {
     setInvoices(prev => prev.map(i => i.id === id ? { ...i, status: 'paid' as const, paid_at: new Date().toISOString() } : i))
+    addToast('success', 'Invoice marked as paid')
   }
 
   const handleSend = (id: string) => {
     setInvoices(prev => prev.map(i => i.id === id ? { ...i, status: 'sent' as const } : i))
+    addToast('success', 'Invoice sent to customer')
   }
 
   return (
@@ -263,10 +268,10 @@ export default function InvoicingPage() {
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-[#71717a]">
-            <FileText size={32} className="mx-auto mb-3 opacity-50" />
-            <p className="text-sm">No invoices found.</p>
-          </div>
+          <EmptyState
+            type="invoices"
+            onAction={() => setShowCreateModal(true)}
+          />
         )}
       </div>
 

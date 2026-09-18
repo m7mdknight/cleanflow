@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { Package, AlertTriangle, Plus, Search, Filter, Truck, Warehouse, Wrench, ShoppingCart, X } from 'lucide-react'
+import { useToast } from '@/components/Toast'
+import EmptyState from '@/components/EmptyState'
 
 interface InventoryItem {
   id: string
@@ -46,6 +48,7 @@ const categoryIcons: Record<string, typeof Package> = {
 }
 
 export default function InventoryPage() {
+  const { addToast } = useToast()
   const [items, setItems] = useState<InventoryItem[]>(mockInventory)
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<string | null>(null)
@@ -83,6 +86,7 @@ export default function InventoryPage() {
     setShowRestockModal(false)
     setRestockItem(null)
     setRestockQty('')
+    addToast('success', `${restockItem.name} restocked with ${qty} ${restockItem.unit}`)
   }
 
   return (
@@ -243,10 +247,10 @@ export default function InventoryPage() {
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-[#71717a]">
-            <Package size={32} className="mx-auto mb-3 opacity-50" />
-            <p className="text-sm">No items match your filters.</p>
-          </div>
+          <EmptyState
+            type="inventory"
+            onAction={() => {}}
+          />
         )}
       </div>
 

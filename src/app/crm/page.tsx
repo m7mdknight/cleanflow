@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { Plus, Search, Mail, Phone, MapPin, MoreVertical, X, Edit2, Trash2, Star, Calendar, Clock } from 'lucide-react'
 import type { Customer, ServiceRecord } from '@/types'
+import { useToast } from '@/components/Toast'
+import EmptyState from '@/components/EmptyState'
 
 const mockCustomers: Customer[] = [
   {
@@ -74,6 +76,8 @@ const tagColors: Record<string, string> = {
 }
 
 export default function CRMPage() {
+  const { addToast } = useToast()
+
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers)
   const [search, setSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
@@ -93,6 +97,7 @@ export default function CRMPage() {
   const handleDelete = (id: string) => {
     setCustomers(prev => prev.filter(c => c.id !== id))
     if (selectedCustomer?.id === id) setSelectedCustomer(null)
+    addToast('success', 'Customer deleted')
   }
 
   return (
@@ -147,9 +152,10 @@ export default function CRMPage() {
         {/* Customer List */}
         <div className="flex-1 space-y-2">
           {filtered.length === 0 ? (
-            <div className="text-center py-12 text-[#71717a]">
-              <p className="text-sm">No customers found.</p>
-            </div>
+            <EmptyState
+              type="customers"
+              onAction={() => setShowCreateModal(true)}
+            />
           ) : (
             filtered.map(customer => (
               <div
