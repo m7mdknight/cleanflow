@@ -1,39 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  /* Background scale */
-  --bg-base: #0a0a0b;
-  --bg-surface: #111113;
-  --bg-surface-2: #18181b;
-  --bg-surface-3: #1e1e22;
-
-  /* Border */
+  --bg: #09090b;
+  --bg-elevated: #0f0f12;
+  --surface: #18181b;
+  --surface-hover: #1f1f23;
+  --surface-active: #27272a;
   --border: #27272a;
-  --border-subtle: #1e1e22;
-
-  /* Text */
+  --border-light: #3f3f46;
   --text: #fafafa;
-  --text-muted: #a1a1aa;
-  --text-dim: #71717a;
-
-  /* Accent */
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
   --accent: #3b82f6;
   --accent-hover: #2563eb;
-  --accent-subtle: #1e3a5f;
-
-  /* Status */
+  --accent-glow: rgba(59, 130, 246, 0.3);
+  --accent-subtle: rgba(59, 130, 246, 0.1);
   --success: #22c55e;
+  --success-glow: rgba(34, 197, 94, 0.3);
+  --success-subtle: rgba(34, 197, 94, 0.1);
   --warning: #f59e0b;
+  --warning-glow: rgba(245, 158, 11, 0.3);
+  --warning-subtle: rgba(245, 158, 11, 0.1);
   --danger: #ef4444;
-
-  /* Radius */
-  --radius: 8px;
-  --radius-sm: 4px;
+  --danger-glow: rgba(239, 68, 68, 0.3);
+  --danger-subtle: rgba(239, 68, 68, 0.1);
+  --purple: #a855f7;
+  --purple-glow: rgba(168, 85, 247, 0.3);
+  --purple-subtle: rgba(168, 85, 247, 0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
   --radius-full: 9999px;
 }
 
 @theme inline {
-  --color-background: var(--bg-base);
+  --color-background: var(--bg);
   --color-foreground: var(--text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -43,17 +44,35 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--bg-base);
+  background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+}
+
+/* Background gradient */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  background: radial-gradient(ellipse at 50% 0%, var(--accent-subtle) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 0%, var(--purple-subtle) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
 
 /* Focus ring */
 :focus-visible {
@@ -67,23 +86,23 @@ body {
   100% { background-position: 200% 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, var(--bg-surface-2) 25%, var(--bg-surface-3) 50%, var(--bg-surface-2) 75%);
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-active) 50%, var(--surface) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
 }
 
-/* Toast animation */
-@keyframes slideIn {
+/* Toast */
+@keyframes slideInRight {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
-@keyframes slideOut {
+@keyframes slideOutRight {
   from { transform: translateX(0); opacity: 1; }
   to { transform: translateX(100%); opacity: 0; }
 }
-.toast-enter { animation: slideIn 0.2s ease-out; }
-.toast-exit { animation: slideOut 0.2s ease-in forwards; }
+.toast-enter { animation: slideInRight 0.2s ease-out; }
+.toast-exit { animation: slideOutRight 0.2s ease-in forwards; }
 
 /* Command palette */
 @keyframes fadeIn {
@@ -97,6 +116,35 @@ body {
 .overlay-enter { animation: fadeIn 0.15s ease-out; }
 .modal-enter { animation: scaleIn 0.15s ease-out; }
 
+/* Slide up */
+@keyframes slideUp {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up { animation: slideUp 0.2s ease-out; }
+
+/* Pulse */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.pulse-glow { animation: pulse-glow 2s infinite; }
+
+/* Card hover */
+.card-hover {
+  transition: all 0.2s ease;
+}
+.card-hover:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Button press */
+.btn-press:active {
+  transform: scale(0.98);
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -104,3 +152,33 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Utility classes */
+.glass {
+  background: rgba(24, 24, 27, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.gradient-border.accent::before { background: linear-gradient(90deg, var(--accent), var(--purple)); }
+.gradient-border.success::before { background: linear-gradient(90deg, var(--success), #10b981); }
+.gradient-border.warning::before { background: linear-gradient(90deg, var(--warning), #f97316); }
+.gradient-border.danger::before { background: linear-gradient(90deg, var(--danger), #f97316); }
+
+.glow-accent { box-shadow: 0 4px 12px var(--accent-glow); }
+.glow-success { box-shadow: 0 4px 12px var(--success-glow); }
+.glow-warning { box-shadow: 0 4px 12px var(--warning-glow); }
+.glow-danger { box-shadow: 0 4px 12px var(--danger-glow); }

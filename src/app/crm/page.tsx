@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Search, Mail, Phone, MapPin, MoreVertical, X, Edit2, Trash2, Star, Calendar, Clock } from 'lucide-react'
+import { Plus, Search, Mail, Phone, MapPin, X, Edit2, Trash2, Star, Calendar, Clock } from 'lucide-react'
 import type { Customer, ServiceRecord } from '@/types'
 import { useToast } from '@/components/Toast'
 import EmptyState from '@/components/EmptyState'
@@ -66,18 +66,17 @@ const mockCustomers: Customer[] = [
 ]
 
 const tagColors: Record<string, string> = {
-  residential: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
-  commercial: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
-  recurring: 'bg-green-500/10 text-green-400 border-green-500/30',
+  residential: 'bg-[#3b82f6]/10 text-[#3b82f6] border-[#3b82f6]/30',
+  commercial: 'bg-[#a855f7]/10 text-[#a855f7] border-[#a855f7]/30',
+  recurring: 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/30',
   'eco-friendly': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-  'access-code': 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
-  'allergy-alert': 'bg-red-500/10 text-red-400 border-red-500/30',
+  'access-code': 'bg-[#f59e0b]/10 text-[#f59e0b] border-[#f59e0b]/30',
+  'allergy-alert': 'bg-[#ef4444]/10 text-[#ef4444] border-[#ef4444]/30',
   hoa: 'bg-orange-500/10 text-orange-400 border-orange-500/30',
 }
 
 export default function CRMPage() {
   const { addToast } = useToast()
-
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers)
   const [search, setSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
@@ -97,20 +96,20 @@ export default function CRMPage() {
   const handleDelete = (id: string) => {
     setCustomers(prev => prev.filter(c => c.id !== id))
     if (selectedCustomer?.id === id) setSelectedCustomer(null)
-    addToast('success', 'Customer deleted')
+    addToast('success', 'Customer deleted successfully')
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 relative z-10">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Customers</h1>
-          <p className="text-sm text-[#a1a1aa] mt-1">{customers.length} total customers</p>
+          <p className="text-sm text-[#a1a1aa] mt-1">{customers.length} total customers · {customers.filter(c => c.tags.includes('recurring')).length} recurring</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white text-sm font-medium rounded-lg transition-all glow-accent btn-press"
         >
           <Plus size={16} />
           Add Customer
@@ -126,21 +125,21 @@ export default function CRMPage() {
             placeholder="Search by name, email, or phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#111113] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#18181b] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-[#3b82f6] transition-colors"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setFilterTag(null)}
-            className={`px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${!filterTag ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-[#111113] border-[#27272a] text-[#71717a] hover:text-[#fafafa]'}`}
+            className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all btn-press ${!filterTag ? 'bg-[#3b82f6] border-[#3b82f6] text-white glow-accent' : 'bg-[#18181b] border-[#27272a] text-[#71717a] hover:text-white hover:border-[#3f3f46]'}`}
           >
             All
           </button>
-          {allTags.slice(0, 4).map(tag => (
+          {allTags.slice(0, 5).map(tag => (
             <button
               key={tag}
               onClick={() => setFilterTag(filterTag === tag ? null : tag)}
-              className={`px-3 py-2 text-xs font-medium rounded-lg border transition-colors capitalize ${filterTag === tag ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-[#111113] border-[#27272a] text-[#71717a] hover:text-[#fafafa]'}`}
+              className={`px-3 py-2 text-xs font-medium rounded-lg border capitalize transition-all btn-press ${filterTag === tag ? 'bg-[#3b82f6] border-[#3b82f6] text-white' : 'bg-[#18181b] border-[#27272a] text-[#71717a] hover:text-white hover:border-[#3f3f46]'}`}
             >
               {tag}
             </button>
@@ -150,7 +149,7 @@ export default function CRMPage() {
 
       <div className="flex gap-6">
         {/* Customer List */}
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 space-y-3">
           {filtered.length === 0 ? (
             <EmptyState
               type="customers"
@@ -161,23 +160,27 @@ export default function CRMPage() {
               <div
                 key={customer.id}
                 onClick={() => setSelectedCustomer(customer)}
-                className={`p-4 rounded-lg border cursor-pointer transition-all ${selectedCustomer?.id === customer.id ? 'bg-blue-500/5 border-blue-500/30' : 'bg-[#111113] border-[#27272a] hover:border-[#3f3f46]'}`}
+                className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                  selectedCustomer?.id === customer.id
+                    ? 'bg-[#3b82f6]/5 border-[#3b82f6]/30 shadow-lg shadow-blue-500/10'
+                    : 'bg-[#18181b] border-[#27272a] hover:border-[#3f3f46] hover:-translate-y-0.5'
+                }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium text-sm">{customer.name}</h3>
                       {customer.tags.includes('allergy-alert') && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-medium bg-red-500/10 text-red-400 border border-red-500/30 rounded">ALLERGY</span>
+                        <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30 rounded-full">ALLERGY</span>
                       )}
                     </div>
                     <div className="flex items-center gap-4 text-xs text-[#71717a]">
-                      <span className="flex items-center gap-1"><Mail size={12} />{customer.email}</span>
-                      <span className="flex items-center gap-1"><Phone size={12} />{customer.phone}</span>
+                      <span className="flex items-center gap-1"><Mail size={11} />{customer.email}</span>
+                      <span className="flex items-center gap-1"><Phone size={11} />{customer.phone}</span>
                     </div>
                     <div className="flex gap-1.5 mt-2">
                       {customer.tags.map(tag => (
-                        <span key={tag} className={`px-2 py-0.5 text-[10px] font-medium rounded border capitalize ${tagColors[tag] || 'bg-[#18181b] text-[#71717a] border-[#27272a]'}`}>
+                        <span key={tag} className={`px-2 py-0.5 text-[10px] font-medium rounded-full border capitalize ${tagColors[tag] || 'bg-[#18181b] text-[#71717a] border-[#27272a]'}`}>
                           {tag}
                         </span>
                       ))}
@@ -187,7 +190,7 @@ export default function CRMPage() {
                     <p className="text-xs text-[#71717a]">{customer.service_history.length} jobs</p>
                     <p className="text-[10px] text-[#71717a] mt-1">
                       {customer.service_history.length > 0
-                        ? `Last: ${new Date(customer.service_history[0].date).toLocaleDateString()}`
+                        ? `Last: ${new Date(customer.service_history[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
                         : 'No jobs yet'}
                     </p>
                   </div>
@@ -199,18 +202,18 @@ export default function CRMPage() {
 
         {/* Customer Detail Sidebar */}
         {selectedCustomer && (
-          <div className="w-96 bg-[#111113] border border-[#27272a] rounded-lg p-6 h-fit sticky top-8">
+          <div className="w-96 bg-[#18181b] border border-[#27272a] rounded-xl p-6 h-fit sticky top-8 shadow-xl">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold">{selectedCustomer.name}</h2>
-                <p className="text-xs text-[#71717a]">Customer since {new Date(selectedCustomer.created_at).toLocaleDateString()}</p>
+                <p className="text-xs text-[#71717a]">Customer since {new Date(selectedCustomer.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
               </div>
               <div className="flex gap-1">
-                <button className="p-1.5 hover:bg-[#18181b] rounded transition-colors">
+                <button className="p-1.5 hover:bg-[#27272a] rounded-lg transition-colors">
                   <Edit2 size={14} className="text-[#71717a]" />
                 </button>
-                <button onClick={() => handleDelete(selectedCustomer.id)} className="p-1.5 hover:bg-red-500/10 rounded transition-colors">
-                  <Trash2 size={14} className="text-red-400" />
+                <button onClick={() => handleDelete(selectedCustomer.id)} className="p-1.5 hover:bg-[#ef4444]/10 rounded-lg transition-colors">
+                  <Trash2 size={14} className="text-[#ef4444]" />
                 </button>
               </div>
             </div>
@@ -235,7 +238,7 @@ export default function CRMPage() {
             {selectedCustomer.notes && (
               <div className="mb-6">
                 <p className="text-[10px] uppercase tracking-wider text-[#71717a] font-semibold mb-2">Notes</p>
-                <p className="text-sm text-[#a1a1aa] bg-[#0a0a0b] p-3 rounded-lg">{selectedCustomer.notes}</p>
+                <p className="text-sm text-[#a1a1aa] bg-[#0f0f12] p-3 rounded-lg">{selectedCustomer.notes}</p>
               </div>
             )}
 
@@ -244,7 +247,7 @@ export default function CRMPage() {
               <p className="text-[10px] uppercase tracking-wider text-[#71717a] font-semibold mb-2">Tags</p>
               <div className="flex flex-wrap gap-1.5">
                 {selectedCustomer.tags.map(tag => (
-                  <span key={tag} className={`px-2 py-1 text-xs font-medium rounded border capitalize ${tagColors[tag] || 'bg-[#18181b] text-[#71717a] border-[#27272a]'}`}>
+                  <span key={tag} className={`px-2 py-1 text-xs font-medium rounded-full border capitalize ${tagColors[tag] || 'bg-[#18181b] text-[#71717a] border-[#27272a]'}`}>
                     {tag}
                   </span>
                 ))}
@@ -259,18 +262,18 @@ export default function CRMPage() {
               ) : (
                 <div className="space-y-2">
                   {selectedCustomer.service_history.map(record => (
-                    <div key={record.id} className="p-3 bg-[#0a0a0b] rounded-lg">
+                    <div key={record.id} className="p-3 bg-[#0f0f12] rounded-lg">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium">{record.service_type}</span>
                         {record.rating && (
-                          <span className="flex items-center gap-0.5 text-xs text-yellow-400">
+                          <span className="flex items-center gap-0.5 text-xs text-[#f59e0b]">
                             <Star size={12} fill="currentColor" />
                             {record.rating}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 text-xs text-[#71717a]">
-                        <span className="flex items-center gap-1"><Calendar size={11} />{new Date(record.date).toLocaleDateString()}</span>
+                        <span className="flex items-center gap-1"><Calendar size={11} />{new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                         <span className="flex items-center gap-1"><Clock size={11} />{record.duration}min</span>
                         <span>{record.cleaner}</span>
                       </div>
@@ -291,6 +294,7 @@ export default function CRMPage() {
           onCreate={(customer) => {
             setCustomers(prev => [customer, ...prev])
             setShowCreateModal(false)
+            addToast('success', 'Customer created successfully')
           }}
         />
       )}
@@ -332,11 +336,11 @@ function CreateCustomerModal({ onClose, onCreate }: { onClose: () => void; onCre
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-[#111113] border border-[#27272a] rounded-xl w-full max-w-lg p-6" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 overlay-enter" onClick={onClose}>
+      <div className="bg-[#18181b] border border-[#27272a] rounded-xl w-full max-w-lg p-6 modal-enter shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold">Add Customer</h2>
-          <button onClick={onClose} className="p-1 hover:bg-[#18181b] rounded transition-colors">
+          <button onClick={onClose} className="p-1 hover:bg-[#27272a] rounded-lg transition-colors">
             <X size={18} className="text-[#71717a]" />
           </button>
         </div>
@@ -349,7 +353,7 @@ function CreateCustomerModal({ onClose, onCreate }: { onClose: () => void; onCre
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Full name or company"
-              className="w-full px-3 py-2 bg-[#0a0a0b] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2.5 bg-[#0f0f12] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-[#3b82f6] transition-colors"
               required
             />
           </div>
@@ -361,7 +365,7 @@ function CreateCustomerModal({ onClose, onCreate }: { onClose: () => void; onCre
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="email@example.com"
-                className="w-full px-3 py-2 bg-[#0a0a0b] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2.5 bg-[#0f0f12] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-[#3b82f6] transition-colors"
               />
             </div>
             <div>
@@ -371,7 +375,7 @@ function CreateCustomerModal({ onClose, onCreate }: { onClose: () => void; onCre
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
                 placeholder="+1 555-0123"
-                className="w-full px-3 py-2 bg-[#0a0a0b] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2.5 bg-[#0f0f12] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-[#3b82f6] transition-colors"
               />
             </div>
           </div>
@@ -382,7 +386,7 @@ function CreateCustomerModal({ onClose, onCreate }: { onClose: () => void; onCre
               value={address}
               onChange={e => setAddress(e.target.value)}
               placeholder="Service address"
-              className="w-full px-3 py-2 bg-[#0a0a0b] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2.5 bg-[#0f0f12] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-[#3b82f6] transition-colors"
             />
           </div>
           <div>
@@ -392,7 +396,7 @@ function CreateCustomerModal({ onClose, onCreate }: { onClose: () => void; onCre
               onChange={e => setNotes(e.target.value)}
               placeholder="Special instructions, allergies, access codes..."
               rows={3}
-              className="w-full px-3 py-2 bg-[#0a0a0b] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full px-3 py-2.5 bg-[#0f0f12] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-[#3b82f6] resize-none transition-colors"
             />
           </div>
           <div>
@@ -404,18 +408,18 @@ function CreateCustomerModal({ onClose, onCreate }: { onClose: () => void; onCre
                 onChange={e => setTagInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
                 placeholder="Add tag and press Enter"
-                className="flex-1 px-3 py-2 bg-[#0a0a0b] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                className="flex-1 px-3 py-2.5 bg-[#0f0f12] border border-[#27272a] rounded-lg text-sm focus:outline-none focus:border-[#3b82f6] transition-colors"
               />
-              <button type="button" onClick={addTag} className="px-3 py-2 bg-[#18181b] border border-[#27272a] rounded-lg text-sm hover:bg-[#27272a] transition-colors">
+              <button type="button" onClick={addTag} className="px-3 py-2.5 bg-[#27272a] border border-[#3f3f46] rounded-lg text-sm hover:bg-[#3f3f46] transition-colors">
                 Add
               </button>
             </div>
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {tags.map(tag => (
-                  <span key={tag} className="flex items-center gap-1 px-2 py-1 text-xs bg-[#18181b] border border-[#27272a] rounded">
+                  <span key={tag} className="flex items-center gap-1 px-2 py-1 text-xs bg-[#0f0f12] border border-[#27272a] rounded-full">
                     {tag}
-                    <button type="button" onClick={() => setTags(tags.filter(t => t !== tag))} className="text-[#71717a] hover:text-red-400">
+                    <button type="button" onClick={() => setTags(tags.filter(t => t !== tag))} className="text-[#71717a] hover:text-[#ef4444]">
                       <X size={12} />
                     </button>
                   </span>
@@ -424,10 +428,10 @@ function CreateCustomerModal({ onClose, onCreate }: { onClose: () => void; onCre
             )}
           </div>
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#a1a1aa] hover:text-white transition-colors">
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors">
+            <button type="submit" className="px-4 py-2 bg-[#3b82f6] hover:bg-[#2563eb] text-white text-sm font-medium rounded-lg transition-all glow-accent btn-press">
               Create Customer
             </button>
           </div>

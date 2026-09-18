@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanFlow — Impressive GUI Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --bg: #09090b;
+  --bg-elevated: #0f0f12;
+  --surface: #18181b;
+  --surface-hover: #1f1f23;
+  --border: #27272a;
+  --border-light: #3f3f46;
+  --text: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --accent: #3b82f6;
+  --accent-glow: rgba(59, 130, 246, 0.3);
+  --success: #22c55e;
+  --success-glow: rgba(34, 197, 94, 0.3);
+  --warning: #f59e0b;
+  --warning-glow: rgba(245, 158, 11, 0.3);
+  --danger: #ef4444;
+  --danger-glow: rgba(239, 68, 68, 0.3);
+  --purple: #a855f7;
+  --purple-glow: rgba(168, 85, 247, 0.3);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-full: 9999px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Animated background gradient */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 0%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: rgba(15, 15, 18, 0.8);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 50;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: white;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px;
+}
+
+.nav-section {
+  margin-bottom: 24px;
+}
+
+.nav-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0 12px;
+  margin-bottom: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 2px;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.nav-badge {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--danger);
+  color: white;
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.user-card:hover {
+  background: var(--surface-hover);
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Main content */
+.main {
+  flex: 1;
+  margin-left: 260px;
+  padding: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.header-title h1 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.header-title p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.search-trigger:hover {
+  border-color: var(--border-light);
+  color: var(--text);
+}
+
+.search-trigger kbd {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px var(--accent-glow);
+}
+
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-light);
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.stat-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.stat-card.accent::before { background: linear-gradient(90deg, var(--accent), var(--purple)); }
+.stat-card.success::before { background: linear-gradient(90deg, var(--success), #10b981); }
+.stat-card.warning::before { background: linear-gradient(90deg, var(--warning), #f97316); }
+.stat-card.danger::before { background: linear-gradient(90deg, var(--danger), #f97316); }
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-card.accent .stat-icon { background: var(--accent-glow); color: var(--accent); }
+.stat-card.success .stat-icon { background: var(--success-glow); color: var(--success); }
+.stat-card.warning .stat-icon { background: var(--warning-glow); color: var(--warning); }
+.stat-card.danger .stat-icon { background: var(--danger-glow); color: var(--danger); }
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+}
+
+.stat-trend.up { background: var(--success-glow); color: var(--success); }
+.stat-trend.down { background: var(--danger-glow); color: var(--danger); }
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.stat-sparkline {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 60px;
+  height: 30px;
+  opacity: 0.5;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+/* Chart */
+.chart-container {
+  position: relative;
+  height: 240px;
+}
+
+/* Activity Feed */
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.activity-item:hover {
+  background: var(--bg);
+}
+
+.activity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.activity-dot.blue { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.activity-dot.green { background: var(--success); box-shadow: 0 0 8px var(--success-glow); }
+.activity-dot.yellow { background: var(--warning); box-shadow: 0 0 8px var(--warning-glow); }
+.activity-dot.purple { background: var(--purple); box-shadow: 0 0 8px var(--purple-glow); }
+
+.activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-text {
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.activity-text strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.activity-time {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Today's Schedule */
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.schedule-item:hover {
+  background: var(--surface-hover);
+  transform: translateX(4px);
+}
+
+.schedule-time {
+  text-align: center;
+  min-width: 60px;
+}
+
+.schedule-time-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.schedule-time-period {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.schedule-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-customer {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.schedule-service {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.schedule-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.schedule-cleaner {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  background: var(--surface);
+  border-radius: var(--radius-full);
+}
+
+.schedule-status {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+}
+
+.schedule-status.confirmed { background: var(--success-glow); color: var(--success); }
+.schedule-status.pending { background: var(--warning-glow); color: var(--warning); }
+.schedule-status.en-route { background: var(--accent-glow); color: var(--accent); }
+
+/* Bottom Section */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Team Status */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.team-member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.team-member:hover {
+  background: var(--surface-hover);
+}
+
+.team-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+}
+
+.team-avatar.maria { background: linear-gradient(135deg, var(--accent), var(--purple)); }
+.team-avatar.ahmed { background: linear-gradient(135deg, var(--success), #10b981); }
+.team-avatar.john { background: linear-gradient(135deg, var(--warning), #f97316); }
+.team-avatar.lisa { background: linear-gradient(135deg, var(--danger), #f97316); }
+
+.team-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.team-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.team-status {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.team-status.online { color: var(--success); }
+.team-status.offline { color: var(--text-muted); }
+
+.team-status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.team-status.online::before { background: var(--success); }
+.team-status.offline::before { background: var(--text-muted); }
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.quick-action:hover {
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+
+.quick-action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.quick-action:nth-child(1) .quick-action-icon { background: var(--accent-glow); color: var(--accent); }
+.quick-action:nth-child(2) .quick-action-icon { background: var(--success-glow); color: var(--success); }
+.quick-action:nth-child(3) .quick-action-icon { background: var(--warning-glow); color: var(--warning); }
+.quick-action:nth-child(4) .quick-action-icon { background: var(--purple-glow); color: var(--purple); }
+
+.quick-action-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Pulse animation for live indicators */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pulse { animation: pulse 2s infinite; }
+
+/* Floating notification */
+.notification-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-icon.success { background: var(--success-glow); color: var(--success); }
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.toast-message {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Live indicator */
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--success);
+  padding: 6px 12px;
+  background: var(--success-glow);
+  border-radius: var(--radius-full);
+}
+
+.live-indicator::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .bottom-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .team-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">C</div>
+      <span class="brand-name">CleanFlow</span>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">Overview</div>
+        <a class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title">Operations</div>
+        <a class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Customers
+          <span class="nav-badge">142</span>
+        </a>
+        <a class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Scheduling
+        </a>
+        <a class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          Dispatch
+        </a>
+        <a class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          Inventory
+          <span class="nav-badge">5</span>
+        </a>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title">Finance</div>
+        <a class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Invoicing
+        </a>
+        <a class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          Reports
+        </a>
+      </div>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar">M</div>
+        <div class="user-info">
+          <div class="user-name">Maria Garcia</div>
+          <div class="user-role">Manager · Springfield</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-title">
+        <h1>Dashboard</h1>
+        <p>Welcome back, Maria. Here's what's happening today.</p>
+      </div>
+      <div class="header-actions">
+        <button class="search-trigger">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Search...
+          <kbd>⌘K</kbd>
+        </button>
+        <button class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Job
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card accent">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="stat-trend up">↑ 12.5%</div>
+        </div>
+        <div class="stat-value">$12,450</div>
+        <div class="stat-label">Revenue This Month</div>
+        <svg class="stat-sparkline" viewBox="0 0 60 30"><path d="M0,25 Q10,20 15,18 T30,12 T45,8 T60,5" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.5"/></svg>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="stat-trend up">↑ 8.3%</div>
+        </div>
+        <div class="stat-value">87</div>
+        <div class="stat-label">Jobs Completed</div>
+        <svg class="stat-sparkline" viewBox="0 0 60 30"><path d="M0,20 Q10,15 15,12 T30,8 T45,5 T60,3" fill="none" stroke="#22c55e" stroke-width="2" opacity="0.5"/></svg>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="stat-trend down">↓ 2.1%</div>
+        </div>
+        <div class="stat-value">78%</div>
+        <div class="stat-label">Team Utilization</div>
+        <svg class="stat-sparkline" viewBox="0 0 60 30"><path d="M0,10 Q10,12 15,15 T30,18 T45,14 T60,12" fill="none" stroke="#f59e0b" stroke-width="2" opacity="0.5"/></svg>
+      </div>
+
+      <div class="stat-card danger">
+        <div class="stat-header">
+          <div class="stat-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div class="stat-trend up">↑ 5.2%</div>
+        </div>
+        <div class="stat-value">94%</div>
+        <div class="stat-label">Customer Retention</div>
+        <svg class="stat-sparkline" viewBox="0 0 60 30"><path d="M0,8 Q10,6 15,5 T30,4 T45,3 T60,2" fill="none" stroke="#ef4444" stroke-width="2" opacity="0.5"/></svg>
+      </div>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+      <!-- Revenue Chart -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Revenue Overview</div>
+            <div class="card-subtitle">Last 12 months performance</div>
+          </div>
+          <div class="card-actions">
+            <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">Monthly</button>
+            <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px; background: var(--accent); color: white; border-color: var(--accent);">Weekly</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Live Activity</div>
+            <div class="card-subtitle">Real-time updates</div>
+          </div>
+          <div class="live-indicator">Live</div>
+        </div>
+        <div class="card-body">
+          <div class="activity-feed">
+            <div class="activity-item">
+              <div class="activity-dot green"></div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>Maria G.</strong> completed <strong>Deep Clean</strong> for Sarah Johnson</div>
+                <div class="activity-time">2 minutes ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot blue"></div>
+              <div class="activity-content">
+                <div class="activity-text">New booking from <strong>TechStart Inc.</strong> for tomorrow</div>
+                <div class="activity-time">15 minutes ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot yellow"></div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>Low stock alert:</strong> Nitrile Gloves below threshold</div>
+                <div class="activity-time">32 minutes ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot purple"></div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>Invoice INV-004</strong> marked as paid</div>
+                <div class="activity-time">1 hour ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot green"></div>
+              <div class="activity-content">
+                <div class="activity-text"><strong>Ahmed S.</strong> checked in for shift</div>
+                <div class="activity-time">1 hour ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Grid -->
+    <div class="bottom-grid">
+      <!-- Today's Schedule -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Today's Schedule</div>
+            <div class="card-subtitle">Thursday, September 18</div>
+          </div>
+          <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">View All</button>
+        </div>
+        <div class="card-body">
+          <div class="schedule-list">
+            <div class="schedule-item" style="border-left-color: #22c55e;">
+              <div class="schedule-time">
+                <div class="schedule-time-value">09:00</div>
+                <div class="schedule-time-period">AM</div>
+              </div>
+              <div class="schedule-info">
+                <div class="schedule-customer">Sarah Johnson</div>
+                <div class="schedule-service">Deep Clean · 3BR/2BA · 3.5h</div>
+              </div>
+              <div class="schedule-meta">
+                <span class="schedule-cleaner">Maria G.</span>
+                <span class="schedule-status confirmed">Confirmed</span>
+              </div>
+            </div>
+            
+            <div class="schedule-item" style="border-left-color: #3b82f6;">
+              <div class="schedule-time">
+                <div class="schedule-time-value">02:00</div>
+                <div class="schedule-time-period">PM</div>
+              </div>
+              <div class="schedule-info">
+                <div class="schedule-customer">TechStart Inc.</div>
+                <div class="schedule-service">Office Clean · 3 floors · 4h</div>
+              </div>
+              <div class="schedule-meta">
+                <span class="schedule-cleaner">Team Alpha</span>
+                <span class="schedule-status en-route">En Route</span>
+              </div>
+            </div>
+            
+            <div class="schedule-item" style="border-left-color: #f59e0b;">
+              <div class="schedule-time">
+                <div class="schedule-time-value">04:00</div>
+                <div class="schedule-time-period">PM</div>
+              </div>
+              <div class="schedule-info">
+                <div class="schedule-customer">Michael Chen</div>
+                <div class="schedule-service">Regular Clean · 2BR/1BA · 2h</div>
+              </div>
+              <div class="schedule-meta">
+                <span class="schedule-cleaner">John D.</span>
+                <span class="schedule-status pending">Pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team & Quick Actions -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Team Status</div>
+            <div class="card-subtitle">4 cleaners on duty</div>
+          </div>
+          <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">Manage</button>
+        </div>
+        <div class="card-body">
+          <div class="team-grid">
+            <div class="team-member">
+              <div class="team-avatar maria">M</div>
+              <div class="team-info">
+                <div class="team-name">Maria G.</div>
+                <div class="team-status online">Active · 2 jobs</div>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="team-avatar ahmed">A</div>
+              <div class="team-info">
+                <div class="team-name">Ahmed S.</div>
+                <div class="team-status online">Active · 1 job</div>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="team-avatar john">J</div>
+              <div class="team-info">
+                <div class="team-name">John D.</div>
+                <div class="team-status online">Active · 1 job</div>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="team-avatar lisa">L</div>
+              <div class="team-info">
+                <div class="team-name">Lisa K.</div>
+                <div class="team-status offline">Off duty</div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px;">Quick Actions</div>
+            <div class="quick-actions">
+              <div class="quick-action">
+                <div class="quick-action-icon">📅</div>
+                <div class="quick-action-label">Schedule</div>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon">📝</div>
+                <div class="quick-action-label">Invoice</div>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon">📦</div>
+                <div class="quick-action-label">Restock</div>
+              </div>
+              <div class="quick-action">
+                <div class="quick-action-icon">📊</div>
+                <div class="quick-action-label">Reports</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Toast Notification -->
+<div class="notification-toast" id="toast">
+  <div class="toast-icon success">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  </div>
+  <div class="toast-content">
+    <div class="toast-title">Job Completed</div>
+    <div class="toast-message">Deep Clean for Sarah Johnson marked as done</div>
+  </div>
+</div>
+
+<script>
+// Revenue Chart
+const ctx = document.getElementById('revenueChart').getContext('2d');
+const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    datasets: [{
+      label: 'Revenue',
+      data: [8200, 9100, 8800, 10200, 11500, 10800, 12100, 11900, 12450, 13200, 14100, 15000],
+      borderColor: '#3b82f6',
+      backgroundColor: gradient,
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4,
+      pointRadius: 0,
+      pointHoverRadius: 6,
+      pointHoverBackgroundColor: '#3b82f6',
+      pointHoverBorderColor: '#fff',
+      pointHoverBorderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#18181b',
+        borderColor: '#27272a',
+        borderWidth: 1,
+        padding: 12,
+        titleColor: '#fafafa',
+        bodyColor: '#a1a1aa',
+        cornerRadius: 8,
+        displayColors: false,
+        callbacks: {
+          label: (ctx) => '$' + ctx.parsed.y.toLocaleString()
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: '#71717a', font: { size: 11 } }
+      },
+      y: {
+        grid: { color: '#27272a', borderDash: [4, 4] },
+        ticks: { 
+          color: '#71717a', 
+          font: { size: 11 },
+          callback: (val) => '$' + (val / 1000) + 'k'
+        },
+        border: { display: false }
+      }
+    },
+    interaction: { intersect: false, mode: 'index' }
+  }
+});
+
+// Auto-dismiss toast
+setTimeout(() => {
+  const toast = document.getElementById('toast');
+  if (toast) toast.style.opacity = '0';
+}, 4000);
+</script>
+</body>
+</html>
